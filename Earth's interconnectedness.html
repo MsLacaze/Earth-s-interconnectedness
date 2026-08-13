@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Te Honohono me ngā Huringa Urupare - Interconnectedness & Feedback Loops</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --panel-bg: rgba(21, 32, 54, 0.75);
+            --border-glow: rgba(56, 189, 248, 0.2);
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --cyan-glow: #38bdf8;
+            --emerald-glow: #34d399;
+            --amber-glow: #fbbf24;
+            --rose-glow: #fb7185;
+            --purple-glow: #a78bfa;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(56, 189, 248, 0.12) 0px, transparent 40%),
+                radial-gradient(at 90% 90%, rgba(52, 211, 153, 0.12) 0px, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Poster Style Header */
+        header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-top: 5px solid var(--cyan-glow);
+            padding: 35px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+            margin-bottom: 35px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.3rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--cyan-glow), var(--emerald-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        header h2 {
+            margin: 8px 0 0;
+            font-size: 1.2rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        /* Glassmorphism Card Panels */
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            margin-bottom: 35px;
+        }
+
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 12px 35px rgba(56, 189, 248, 0.15);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+        }
+
+        /* SECTION 1: Interactive Diagram Labeling */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .diagram-svg-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            background: rgba(11, 15, 25, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+        }
+
+        .drop-pin {
+            fill: rgba(15, 23, 42, 0.9);
+            stroke: var(--cyan-glow);
+            stroke-width: 2;
+            cursor: pointer;
+        }
+
+        .label-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .chip {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            cursor: grab;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+            user-select: none;
+        }
+
+        .chip:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--cyan-glow);
+            transform: translateY(-2px);
+        }
+
+        .chip.selected {
+            border-color: var(--emerald-glow);
+            background: rgba(52, 211, 153, 0.2);
+        }
+
+        .target-select {
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            border: 1px solid var(--cyan-glow);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* SECTION 2: Cloze Word Bank Grid */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(11, 15, 25, 0.6);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .wb-word {
+            padding: 6px 14px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--cyan-glow);
+        }
+
+        .cloze-text {
+            line-height: 2.2;
+            font-size: 1.02rem;
+            color: #cbd5e1;
+        }
+
+        .cloze-input {
+            width: 130px;
+            padding: 4px 8px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 6px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .cloze-input:focus {
+            outline: none;
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Buttons & Feedback */
+        .btn {
+            background: linear-gradient(135deg, var(--cyan-glow), #0284c7);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .feedback {
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .feedback.correct {
+            background: rgba(52, 211, 153, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .feedback.incorrect {
+            background: rgba(251, 113, 133, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(251, 113, 133, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--cyan-glow);
+        }
+
+        /* Selector for Section 3 */
+        select {
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        select:focus {
+            border-color: var(--cyan-glow);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Te Honohono me ngā Huringa Urupare</h1>
+        <h2>Interconnectedness and Feedback Loops — Lesson 2 Interactive Lab</h2>
+    </header>
+
+    <!-- SECTION 1: DIAGRAM LABELING -->
+    <div class="card">
+        <h3><span>🗺️</span> Section 1: Earth Block-Diagram Labeling Task</h3>
+        <p style="color: var(--text-sub);">Select the correct sphere label for each numbered point on the cross-section diagram below[cite: 4]:</p>
+
+        <div class="diagram-container">
+            <div class="diagram-svg-wrap">
+                <svg viewBox="0 0 600 350" width="100%">
+                    <!-- Isometric Earth Block Graphic -->
+                    <defs>
+                        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.6"/>
+                            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.1"/>
+                        </linearGradient>
+                        <linearGradient id="mantleGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#78350f"/>
+                            <stop offset="100%" stop-color="#451a03"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Sky / Atmosphere -->
+                    <rect x="50" y="20" width="500" height="80" rx="10" fill="url(#skyGrad)" stroke="#38bdf8" stroke-dasharray="4"/>
+                    <text x="70" y="50" fill="#7dd3fc" font-size="12" font-weight="bold">Air Layer & Clouds</text>
+
+                    <!-- Block Top (Land/Ocean) -->
+                    <polygon points="50,150 300,100 550,150 300,200" fill="#15803d" stroke="#22c55e" stroke-width="2"/> <!-- Land -->
+                    <polygon points="300,200 550,150 450,130 200,180" fill="#0284c7" opacity="0.8"/> <!-- Ocean Water -->
+                    <polygon points="280,104 320,96 350,110 300,120" fill="#f8fafc"/> <!-- Glacial Ice Peak -->
+
+                    <!-- Block Sides (Geosphere) -->
+                    <polygon points="50,150 300,200 300,300 50,250" fill="url(#mantleGrad)" stroke="#92400e"/>
+                    <polygon points="300,200 550,150 550,250 300,300" fill="#292524" stroke="#44403c"/>
+
+                    <!-- Point 1: Atmosphere -->
+                    <circle cx="200" cy="60" r="14" class="drop-pin"/>
+                    <text x="196" y="65" fill="#38bdf8" font-size="14" font-weight="bold">1</text>
+
+                    <!-- Point 2: Geosphere -->
+                    <circle cx="160" cy="220" r="14" class="drop-pin"/>
+                    <text x="156" y="225" fill="#38bdf8" font-size="14" font-weight="bold">2</text>
+
+                    <!-- Point 3: Hydrosphere -->
+                    <circle cx="380" cy="170" r="14" class="drop-pin"/>
+                    <text x="376" y="175" fill="#38bdf8" font-size="14" font-weight="bold">3</text>
+
+                    <!-- Point 4: Cryosphere -->
+                    <circle cx="310" cy="105" r="14" class="drop-pin"/>
+                    <text x="306" y="110" fill="#38bdf8" font-size="14" font-weight="bold">4</text>
+                </svg>
+            </div>
+
+            <!-- Select Controls for Labeling -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; width: 100%;">
+                <div>
+                    <label><strong>Location 1 (Air):</strong></label>
+                    <select id="diag-1" class="target-select">
+                        <option value="">-- Choose Label --</option>
+                        <option value="atmosphere">Atmosphere</option>
+                        <option value="geosphere">Geosphere</option>
+                        <option value="hydrosphere">Hydrosphere</option>
+                        <option value="cryosphere">Cryosphere</option>
+                    </select>
+                </div>
+                <div>
+                    <label><strong>Location 2 (Rocks/Crust):</strong></label>
+                    <select id="diag-2" class="target-select">
+                        <option value="">-- Choose Label --</option>
+                        <option value="atmosphere">Atmosphere</option>
+                        <option value="geosphere">Geosphere</option>
+                        <option value="hydrosphere">Hydrosphere</option>
+                        <option value="cryosphere">Cryosphere</option>
+                    </select>
+                </div>
+                <div>
+                    <label><strong>Location 3 (Liquid Water):</strong></label>
+                    <select id="diag-3" class="target-select">
+                        <option value="">-- Choose Label --</option>
+                        <option value="atmosphere">Atmosphere</option>
+                        <option value="geosphere">Geosphere</option>
+                        <option value="hydrosphere">Hydrosphere</option>
+                        <option value="cryosphere">Cryosphere</option>
+                    </select>
+                </div>
+                <div>
+                    <label><strong>Location 4 (Ice Peak):</strong></label>
+                    <select id="diag-4" class="target-select">
+                        <option value="">-- Choose Label --</option>
+                        <option value="atmosphere">Atmosphere</option>
+                        <option value="geosphere">Geosphere</option>
+                        <option value="hydrosphere">Hydrosphere</option>
+                        <option value="cryosphere">Cryosphere</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn" onclick="checkDiagram()">Check Diagram Labels</button>
+            <div id="diag-feedback" class="feedback"></div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: INTERACTIVE CLOZE PASSAGE -->
+    <div class="card">
+        <h3><span>📝</span> Section 2: Earth's Interconnected Systems (Cloze Reading)</h3>
+        <p style="color: var(--text-sub);">Complete the passage below using terms from the word bank[cite: 4]:</p>
+
+        <div class="word-bank">
+            <span class="wb-word">interconnected</span>
+            <span class="wb-word">geosphere</span>
+            <span class="wb-word">atmosphere</span>
+            <span class="wb-word">hydrosphere</span>
+            <span class="wb-word">biosphere</span>
+            <span class="wb-word">equilibrium</span>
+            <span class="wb-word">positive</span>
+            <span class="wb-word">cryosphere</span>
+            <span class="wb-word">albedo</span>
+            <span class="wb-word">negative</span>
+            <span class="wb-word">carbon</span>
+            <span class="wb-word">acidification</span>
+        </div>
+
+        <div class="cloze-text">
+            Earth's environment is not a collection of isolated parts; rather, it is a highly 
+            <input type="text" class="cloze-input" id="c1" placeholder="1"> system[cite: 4]. 
+            Scientists divide the planet into different spheres, such as the 
+            <input type="text" class="cloze-input" id="c2" placeholder="2"> (rocks and soil)[cite: 4], the 
+            <input type="text" class="cloze-input" id="c3" placeholder="3"> (air)[cite: 4], and the 
+            <input type="text" class="cloze-input" id="c4" placeholder="4"> (liquid water)[cite: 4]. 
+            All living things make up the <input type="text" class="cloze-input" id="c5" placeholder="5">[cite: 4].<br><br>
+
+            Normally, natural systems maintain a state of balance, known as 
+            <input type="text" class="cloze-input" id="c6" placeholder="6">[cite: 4]. However, changes can disrupt this balance through loops of cause and effect[cite: 4]. A 
+            <input type="text" class="cloze-input" id="c7" placeholder="7"> feedback loop amplifies change, pushing a system further out of balance[cite: 4]. For example, as global temperatures rise, sea ice in the 
+            <input type="text" class="cloze-input" id="c8" placeholder="8"> melts[cite: 4]. This uncovers dark ocean water, which lowers the Earth's 
+            <input type="text" class="cloze-input" id="c9" placeholder="9"> (reflectivity)[cite: 3, 4].<br><br>
+
+            Conversely, a <input type="text" class="cloze-input" id="c10" placeholder="10"> feedback loop stabilises a system and helps counteract change[cite: 3, 4]. 
+            When excess <input type="text" class="cloze-input" id="c11" placeholder="11"> dioxide is released into the air[cite: 4], much of it is absorbed by oceans[cite: 4]. This chemical change, known as ocean 
+            <input type="text" class="cloze-input" id="c12" placeholder="12">, makes it difficult for marine life to build skeletons[cite: 3, 4].
+        </div>
+
+        <button class="btn" onclick="checkCloze()">Check Cloze Passage</button>
+        <div id="cloze-feedback" class="feedback"></div>
+    </div>
+
+    <!-- SECTION 3: FEEDBACK LOOP CLASSIFIER -->
+    <div class="card">
+        <h3><span>🔄</span> Section 3: Feedback Loop Mechanism Classifier</h3>
+        <p style="color: var(--text-sub);">Classify each feedback loop scenario as Amplifying (Positive) or Stabilising (Negative)[cite: 3, 4]:</p>
+
+        <div style="margin-bottom: 20px;">
+            <label><strong>1. Ice-Albedo Feedback: Melting sea ice exposes dark oceans $\rightarrow$ dark water absorbs heat $\rightarrow$ temperatures rise $\rightarrow$ more ice melts[cite: 3, 4]:</strong></label>
+            <select id="fb-1">
+                <option value="">-- Select Type --</option>
+                <option value="positive">Positive Feedback (Amplifying / Moves away from equilibrium)</option>
+                <option value="negative">Negative Feedback (Stabilising / Restores equilibrium)</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label><strong>2. Evaporation Cloud Response: Warmer air increases evaporation $\rightarrow$ forms dense clouds $\rightarrow$ clouds reflect solar energy back to space $\rightarrow$ system cools down[cite: 3, 4]:</strong></label>
+            <select id="fb-2">
+                <option value="">-- Select Type --</option>
+                <option value="positive">Positive Feedback (Amplifying / Moves away from equilibrium)</option>
+                <option value="negative">Negative Feedback (Stabilising / Restores equilibrium)</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="checkFeedbackSection()">Classify Feedback Mechanisms</button>
+        <div id="fb-feedback" class="feedback"></div>
+    </div>
+
+    <!-- SECTION 4: APPLICATION CHALLENGE (NZ CONTEXT) -->
+    <div class="card">
+        <h3><span>🇳🇿</span> Section 4: Application Challenge (New Zealand Context)</h3>
+        <p style="color: var(--text-sub);">Choose one sphere (Geosphere, Atmosphere, Hydrosphere, Biosphere, or Cryosphere) and describe a specific interaction between that sphere and human activity in New Zealand[cite: 4]:</p>
+
+        <textarea id="nz-app" rows="4" placeholder="Example: Humans (anthroposphere) fish in coastal waters (hydrosphere/biosphere) around NZ, impacting marine populations..."></textarea>
+        
+        <button class="btn" onclick="checkNZApp()">Submit Application Challenge</button>
+        <div id="nz-feedback" class="feedback"></div>
+    </div>
+</div>
+
+<script>
+    // Diagram Label Check
+    function checkDiagram() {
+        const d1 = document.getElementById('diag-1').value;
+        const d2 = document.getElementById('diag-2').value;
+        const d3 = document.getElementById('diag-3').value;
+        const d4 = document.getElementById('diag-4').value;
+        const fb = document.getElementById('diag-feedback');
+
+        if (d1 === 'atmosphere' && d2 === 'geosphere' && d3 === 'hydrosphere' && d4 === 'cryosphere') {
+            fb.className = 'feedback correct';
+            fb.innerHTML = '✔ Excellent! Location 1 is Atmosphere, 2 is Geosphere, 3 is Hydrosphere, and 4 is Cryosphere (frozen ice).';
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerHTML = '✖ Some diagram labels are incorrect. Review the locations and try again!';
+        }
+        fb.style.display = 'block';
+    }
+
+    // Cloze Passage Check
+    function checkCloze() {
+        const key = [
+            'interconnected', 'geosphere', 'atmosphere', 'hydrosphere', 
+            'biosphere', 'equilibrium', 'positive', 'cryosphere', 
+            'albedo', 'negative', 'carbon', 'acidification'
+        ];
+        
+        let correctCount = 0;
+        for (let i = 1; i <= 12; i++) {
+            const val = document.getElementById('c' + i).value.trim().toLowerCase();
+            if (val === key[i - 1]) {
+                document.getElementById('c' + i).style.borderColor = '#34d399';
+                correctCount++;
+            } else {
+                document.getElementById('c' + i).style.borderColor = '#fb7185';
+            }
+        }
+
+        const fb = document.getElementById('cloze-feedback');
+        if (correctCount === 12) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = '🎉 Outstanding! All 12 cloze passage words are filled in correctly!';
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerHTML = `✖ You scored ${correctCount}/12. Highlighted boxes in red need correction!`;
+        }
+        fb.style.display = 'block';
+    }
+
+    // Feedback Loop Check
+    function checkFeedbackSection() {
+        const fb1 = document.getElementById('fb-1').value;
+        const fb2 = document.getElementById('fb-2').value;
+        const fb = document.getElementById('fb-feedback');
+
+        if (fb1 === 'positive' && fb2 === 'negative') {
+            fb.className = 'feedback correct';
+            fb.innerHTML = '✔ Spot on! Ice melting is a Positive (amplifying) loop, while cloud cooling acts as a Negative (stabilising) loop.';
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerHTML = '✖ Review the definitions: Positive loops amplify change, while Negative loops restore balance.';
+        }
+        fb.style.display = 'block';
+    }
+
+    // NZ Application Response Check
+    function checkNZApp() {
+        const text = document.getElementById('nz-app').value.trim();
+        const fb = document.getElementById('nz-feedback');
+
+        if (text.length > 20) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = '✔ <strong>Response Recorded!</strong><br><em>Exemplar Answer:</em> Humans (anthroposphere) catch fish from coastal waters (hydrosphere/biosphere) around New Zealand, which can affect local marine ecosystem balance if overfished.';
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerHTML = '✖ Please write a complete sentence response outlining a specific NZ human-sphere interaction.';
+        }
+        fb.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
